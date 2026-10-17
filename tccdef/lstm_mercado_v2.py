@@ -1,27 +1,3 @@
-"""
-Previsão de mercado com LSTM — VERSÃO 2 (atualizada a partir dos resultados da v1).
-
-Resultado da v1 (PETR4, ~1.447 pregões de teste): a LSTM não superou os baselines
-(acurácia 51,4% contra 54,0% de "sempre comprado"; IC ≈ 0; R² fora da amostra < 0) e o
-buy-and-hold apareceu com +573%, valor suspeito. O que muda nesta versão:
-
-  1. VALIDAÇÃO DOS DADOS: detecta saltos, duplicatas, buracos e mostra o retorno total
-     (com correção opcional de saltos por split/bonificação).
-  2. NOVO ALVO "volatilidade": log da volatilidade realizada nos próximos N dias, com
-     baselines de persistência, EWMA (RiskMetrics) e HAR. Volatilidade é bem mais
-     previsível que direção, e é onde uma LSTM tem mais chance de agregar valor.
-  3. HORIZONTE configurável (ex.: 5 dias) com embargo entre treino e teste.
-  4. INFERÊNCIA ESTATÍSTICA: bootstrap em blocos (Sharpe vs comprar e segurar; diferença
-     de perda vs HAR), em vez de olhar só diferenças pontuais.
-  5. ANÁLISE POR FOLD (estabilidade entre regimes), EXPOSIÇÃO ao mercado e sensibilidade a
-     custos de transação.
-  6. REGISTRO DE EXECUÇÕES (historico_execucoes.csv) para controlar múltiplos testes.
-
-FONTE DE DADOS: exclusivamente Yahoo Finance (yfinance), preços ajustados por proventos e splits.
-Cada execução grava saida/coleta_<ativo>.json com a data da coleta e o período baixado.
-
-Uso:  python lstm_mercado_v2.py     (ajuste as opções na classe Config)
-"""
 import json
 import os
 import time
@@ -833,7 +809,6 @@ def atualizar_previsoes(cfg):
 
 
 def interpretar_previsao(r):
-    """Converte a saída do modelo em números legíveis (probabilidade, % de retorno, % de volatilidade)."""
     m = r["media"]
     pct = lambda x: (np.exp(x) - 1) * 100
     anual = lambda x: np.exp(x) * np.sqrt(252) * 100
