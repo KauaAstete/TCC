@@ -1,9 +1,3 @@
-"""
-Interface Streamlit para o algoritmo LSTM de previsão de mercado.
-
-Rodar (na pasta onde estão lstm_mercado_v2.py e este arquivo):
-    streamlit run app_streamlit.py
-"""
 import contextlib
 import dataclasses
 import datetime as dt
