@@ -1,0 +1,2 @@
+data_hora,ticker,tarefa,horizonte,lookback,n_seeds,custo_bps,long_short,acc_%,p_vs_maioria,sharpe,retorno_%,sharpe_bh,r2_oos
+2026-10-16 23:35,PETR4.SA,classificacao,1,30,3,10.0,False,51.6354,0.9618,0.67,192.5296,1.0228,
