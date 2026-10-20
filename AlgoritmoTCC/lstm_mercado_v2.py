@@ -1,27 +1,3 @@
-"""
-Previsão de mercado com LSTM — VERSÃO 2 (atualizada a partir dos resultados da v1).
-
-Resultado da v1 (PETR4, ~1.447 pregões de teste): a LSTM não superou os baselines
-(acurácia 51,4% contra 54,0% de "sempre comprado"; IC ≈ 0; R² fora da amostra < 0) e o
-buy-and-hold apareceu com +573%, valor suspeito. O que muda nesta versão:
-
-  1. VALIDAÇÃO DOS DADOS: detecta saltos, duplicatas, buracos e mostra o retorno total
-     (com correção opcional de saltos por split/bonificação).
-  2. NOVO ALVO "volatilidade": log da volatilidade realizada nos próximos N dias, com
-     baselines de persistência, EWMA (RiskMetrics) e HAR. Volatilidade é bem mais
-     previsível que direção, e é onde uma LSTM tem mais chance de agregar valor.
-  3. HORIZONTE configurável (ex.: 5 dias) com embargo entre treino e teste.
-  4. INFERÊNCIA ESTATÍSTICA: bootstrap em blocos (Sharpe vs comprar e segurar; diferença
-     de perda vs HAR), em vez de olhar só diferenças pontuais.
-  5. ANÁLISE POR FOLD (estabilidade entre regimes), EXPOSIÇÃO ao mercado e sensibilidade a
-     custos de transação.
-  6. REGISTRO DE EXECUÇÕES (historico_execucoes.csv) para controlar múltiplos testes.
-
-FONTE DE DADOS: exclusivamente Yahoo Finance (yfinance), preços ajustados por proventos e splits.
-Cada execução grava saida/coleta_<ativo>.json com a data da coleta e o período baixado.
-
-Uso:  python lstm_mercado_v2.py     (ajuste as opções na classe Config)
-"""
 import json
 import os
 import time
@@ -65,10 +41,10 @@ class Config:
     # Dados
     ticker: str = "PETR4.SA"
     inicio: str = "2015-01-01"
-    fim: Optional[str] = None  # None = até hoje
+    fim: Optional[str] = None
     exogenas: dict = field(default_factory=lambda: {
         "brent": "BZ=F", "usd": "BRL=X", "ibov": "^BVSP"})
-    limite_salto: float = 0.40     # variação diária (log) acima disso é sinalizada
+    limite_salto: float = 0.40   
     corrigir_saltos: bool = False  # True = remove saltos (splits/bonificações) do histórico
 
     # Problema: "classificacao" (sobe/desce) | "regressao" (retorno) | "volatilidade"
@@ -110,7 +86,7 @@ class Config:
 # ==============================================================================
 # 1. DADOS, VALIDAÇÃO E FEATURES
 # ==============================================================================
-CACHE_TTL_S = 6 * 3600     # downloads reaproveitados por 6 h (evita limite de requisições do Yahoo)
+CACHE_TTL_S = 6 * 3600    
 _CACHE = {}
 
 
@@ -131,13 +107,13 @@ def _baixar_yahoo(ticker, inicio, fim):
                 kw["session"] = cr.Session(impersonate=alvo)
             df = yf.download(ticker, start=inicio, end=fim, auto_adjust=True,
                              progress=False, **kw)
-            if isinstance(df.columns, pd.MultiIndex):      # yfinance recente devolve MultiIndex
+            if isinstance(df.columns, pd.MultiIndex):      
                 df.columns = df.columns.get_level_values(0)
             if not df.empty:
-                idx = pd.DatetimeIndex(df.index)           # datas sem fuso/hora (alinha ativos e exógenas)
+                idx = pd.DatetimeIndex(df.index)          
                 df.index = (idx.tz_localize(None) if idx.tz is not None else idx).normalize()
                 return df.dropna(how="all")
-        except Exception:  # noqa: BLE001
+        except Exception: 
             continue
     return pd.DataFrame()
 
@@ -282,12 +258,12 @@ def montar_features(cfg, incluir_futuro=False):
     # Alvos (as features em t só usam informação até t)
     if cfg.tarefa == "volatilidade":
         h = cfg.horizonte_vol
-        rv = np.sqrt((ret1 ** 2).rolling(h).mean().shift(-h))   # vol. realizada em t+1..t+h
+        rv = np.sqrt((ret1 ** 2).rolling(h).mean().shift(-h))  
         f["alvo"] = np.log(rv.clip(lower=1e-6))
     else:
         h = cfg.horizonte
-        f["alvo"] = ret1.rolling(h).sum().shift(-h)              # retorno acumulado t+1..t+h
-    f["ret_seg"] = ret1.shift(-1)                                # retorno do dia seguinte (backtest)
+        f["alvo"] = ret1.rolling(h).sum().shift(-h)             
+    f["ret_seg"] = ret1.shift(-1)                                
     f = f.replace([np.inf, -np.inf], np.nan)
     if incluir_futuro:
         return f.dropna(subset=[c for c in f.columns if c not in ("alvo", "ret_seg")])
