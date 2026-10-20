@@ -1,21 +1,3 @@
-"""
-Análise em VÁRIOS ativos da B3 — para dar robustez ao trabalho.
-
-Um resultado em um único ativo pode ser sorte ou característica daquele papel. Rodando o
-mesmo experimento em vários ativos, dá para perguntar o que realmente importa:
-"a LSTM supera o baseline de forma CONSISTENTE?"
-
-O que este módulo calcula, além do resultado de cada ativo:
-  - em quantos ativos a LSTM supera o baseline (e um teste de sinais sobre essa contagem);
-  - p-valores corrigidos para múltiplos testes (Holm e Benjamini-Hochberg);
-  - uma carteira de pesos iguais com os sinais da LSTM contra comprar e segurar a mesma
-    carteira, com bootstrap em blocos do Sharpe.
-
-Uso na linha de comando (dados baixados do Yahoo Finance):
-    python multi_ativos.py                          # universo padrão, alvo = direção
-    python multi_ativos.py PETR4.SA VALE3.SA ITUB4.SA
-    python multi_ativos.py --tarefa volatilidade --horizonte 5 --rapido
-"""
 import argparse
 import contextlib
 import dataclasses
@@ -26,8 +8,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import binomtest, ttest_1samp
 
-# Universo de estudo: papéis líquidos de setores diferentes (ticker -> setor).
-# Atenção: escolher os líquidos de HOJE embute viés de sobrevivência; cite isso no trabalho.
 UNIVERSO = {
     "PETR4.SA": "Petróleo e gás", "VALE3.SA": "Mineração", "ITUB4.SA": "Bancos",
     "BBDC4.SA": "Bancos", "BBAS3.SA": "Bancos", "ABEV3.SA": "Bebidas",
