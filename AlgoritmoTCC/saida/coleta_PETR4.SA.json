@@ -1,0 +1,33 @@
+{
+  "fonte": "Yahoo Finance (yfinance 1.7.0)",
+  "precos": "ajustados por dividendos e desdobramentos (auto_adjust=True)",
+  "coletado_em": "2026-10-17 19:26",
+  "inicio_solicitado": "2015-01-01",
+  "fim_solicitado": "hoje",
+  "series": [
+    {
+      "ticker": "PETR4.SA",
+      "primeira_data": "2015-01-02",
+      "ultima_data": "2026-10-16",
+      "linhas": 2935
+    },
+    {
+      "ticker": "BZ=F",
+      "primeira_data": "2015-01-02",
+      "ultima_data": "2026-10-16",
+      "linhas": 2966
+    },
+    {
+      "ticker": "BRL=X",
+      "primeira_data": "2015-01-01",
+      "ultima_data": "2026-10-17",
+      "linhas": 3070
+    },
+    {
+      "ticker": "^BVSP",
+      "primeira_data": "2015-01-02",
+      "ultima_data": "2026-10-16",
+      "linhas": 2927
+    }
+  ]
+}

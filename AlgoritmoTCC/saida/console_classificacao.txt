@@ -1,0 +1,50 @@
+Fonte: Yahoo Finance (yfinance 1.7.0) | preços ajustados | coletado em 2026-10-17 19:26
+
+--- VALIDAÇÃO DOS DADOS ---
+Maiores variações diárias: 2020-03-09 (-35.2%), 2021-02-22 (-23.2%), 2020-03-12 (-22.9%), 2020-03-13 (+20.1%), 2017-05-18 (-17.1%)
+Preço 2.34 → 59.68 | multiplicador 25.45x em 11.8 anos (2015-01-02 → 2026-10-16)
+
+PETR4.SA: 2874 amostras | 18 features | 2015-03-31 -> 2026-10-15 | tarefa=classificacao
+fold 1/5: treino até 2021-01-11 | teste 2021-01-12 → 2022-03-09 | épocas=16 | acc ensemble=48.4%
+fold 2/5: treino até 2022-03-09 | teste 2022-03-10 → 2023-05-03 | épocas=13 | acc ensemble=53.0%
+fold 3/5: treino até 2023-05-03 | teste 2023-05-04 → 2024-06-26 | épocas=13 | acc ensemble=51.2%
+fold 4/5: treino até 2024-06-26 | teste 2024-06-27 → 2025-08-19 | épocas=14 | acc ensemble=49.5%
+fold 5/5: treino até 2025-08-19 | teste 2025-08-20 → 2026-10-15 | épocas=18 | acc ensemble=57.8%
+
+=== RESULTADOS FORA DA AMOSTRA (walk-forward, todos os folds) ===
+Período: 2021-01-12 → 2026-10-15 | 1437 pregões | dias de alta no alvo: 53.9% | tarefa=classificacao, horizonte=1d
+Acurácia por seed: [51.01 50.24 51.64] (média 50.96% ± 0.57)
+
+         modelo   acc_%  p_vs_50%  p_vs_maioria      IC  retorno_%  sharpe  max_dd_%  exposicao_%  trocas   RMSE    MAE  R2_oos
+LSTM (ensemble) 51.9833    0.0698        0.9342 -0.0022   218.9076  0.7215  -41.2306      71.1900   167.0    NaN    NaN     NaN
+sempre_comprado 53.9318    0.0016        0.5108     NaN   620.8632  1.0228  -39.1042     100.0000     1.0    NaN    NaN     NaN
+       momentum 51.2178    0.1849        0.9816  0.0227   155.4018  0.7044  -31.4633      53.8622   700.0    NaN    NaN     NaN
+       reversao 48.7822    0.8289        1.0000 -0.0227   -24.5817 -0.2027  -45.3440      45.3027   701.0    NaN    NaN     NaN
+          ridge 50.3132    0.4164        0.9972  0.0012   172.4395  0.6811  -30.2348      59.2206   369.0 0.0215 0.0152 -0.0153
+  grad_boosting 49.0605    0.7699        0.9999 -0.0033    71.7965  0.3628  -34.9692      55.3236   571.0    NaN    NaN     NaN
+media_historica 53.9318    0.0016        0.5108 -0.0398   620.8632  1.0228  -39.1042     100.0000     1.0 0.0213 0.0150  0.0000
+
+--- SHARPE X CUSTO DE TRANSAÇÃO (bps por unidade negociada) ---
+         modelo  sharpe@0bps  sharpe@10bps  sharpe@20bps
+LSTM (ensemble)        0.826         0.721         0.617
+          ridge        0.932         0.681         0.430
+       momentum        1.231         0.704         0.178
+sempre_comprado        1.023         1.023         1.022
+
+--- BOOTSTRAP EM BLOCOS (2000 reamostragens, bloco=20d): Sharpe da estratégia MENOS Sharpe do sempre_comprado ---
+         modelo  dif_sharpe  IC95_inf  IC95_sup  p_boot
+LSTM (ensemble)      -0.301    -0.797     0.218   0.241
+          ridge      -0.342    -0.883     0.249   0.249
+  grad_boosting      -0.660    -1.209    -0.091   0.026
+       momentum      -0.318    -0.974     0.310   0.327
+Leitura: se o IC95% inclui 0, não há evidência de que a estratégia supere comprar e segurar.
+
+--- ESTABILIDADE POR FOLD (regimes de mercado) ---
+ fold     inicio        fim  taxa_alta_%  acc_LSTM_%  acc_ridge_%  sharpe_LSTM  sharpe_B&H
+    1 2021-01-12 2022-03-09        52.96       48.43        49.83        -0.19        0.61
+    2 2022-03-10 2023-05-03        52.26       52.96        51.92         0.27        0.45
+    3 2023-05-04 2024-06-26        57.84       51.22        51.92         1.58        2.18
+    4 2024-06-27 2025-08-19        46.69       49.48        52.26        -0.35       -0.24
+    5 2025-08-20 2026-10-15        59.86       57.79        45.67         2.67        2.57
+
+[registro] execução nº 2 salva em saida\historico_execucoes.csv. Com 2 configuração(ões) testada(s), use um limiar de p-valor mais rígido (≈ 0,05/2 = 0.0250).
