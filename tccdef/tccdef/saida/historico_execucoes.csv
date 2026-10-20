@@ -1,0 +1,3 @@
+data_hora,ticker,tarefa,horizonte,lookback,n_seeds,custo_bps,long_short,rmse,r2_oos,ganho_vs_har_%,qlike,acc_%,p_vs_maioria,sharpe,retorno_%,sharpe_bh
+2026-10-17 19:28,PETR4.SA,volatilidade,5,30,3,10.0,False,0.4974,0.3043,-3.1502,0.5494,,,,,
+2026-10-17 19:30,PETR4.SA,classificacao,1,30,3,10.0,False,,,,,51.9833,0.9342,0.7215,218.9076,1.0228
